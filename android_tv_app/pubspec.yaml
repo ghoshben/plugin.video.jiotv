@@ -1,0 +1,21 @@
+name: android_tv_app
+description: Minimal Android TV Flutter app for JioTV plugin
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  shared_preferences: ^2.2.2
+  video_player: ^2.8.1
+  flutter_tv:
+    git:
+      url: https://github.com/akshathjain/flutter_tv
+
+flutter:
+  uses-material-design: true
+
