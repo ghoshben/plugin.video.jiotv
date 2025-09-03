@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isOtpMode = false;
   bool _isLoading = false;
+  bool _otpSent = false;
 
   @override
   void dispose() {
@@ -73,6 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (error == null) {
+        setState(() {
+          _otpSent = true;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('OTP sent successfully!')),
         );
@@ -94,6 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () {
               setState(() {
                 _isOtpMode = !_isOtpMode;
+                _otpSent = false;
               });
             },
             child: Text(
@@ -137,10 +142,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _sendOtp,
-                        child: const Text('Send OTP'),
-                      ),
+                      if (!_otpSent)
+                        ElevatedButton(
+                          onPressed: _sendOtp,
+                          child: const Text('Send OTP'),
+                        ),
                     ] else ...[
                       TextFormField(
                         controller: _passwordController,
@@ -157,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: _login,
-                      child: Text(_isOtpMode ? 'Login with OTP' : 'Login'),
+                      child: const Text('Login'),
                     ),
                   ],
                 ),

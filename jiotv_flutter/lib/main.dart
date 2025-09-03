@@ -3,9 +3,12 @@ import 'package:jiotv_flutter/providers/auth_provider.dart';
 import 'package:jiotv_flutter/providers/channel_provider.dart';
 import 'package:jiotv_flutter/screens/home_screen.dart';
 import 'package:jiotv_flutter/screens/login_screen.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jiotv_flutter/services/channel_service.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final int channelId;
@@ -12,7 +13,8 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController _controller;
+  late final Player _player;
+  late final VideoController _controller;
   final ChannelService _channelService = ChannelService();
   bool _isLoading = true;
   String? _error;
@@ -20,35 +22,38 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
+    _player = Player();
+    _controller = VideoController(_player);
     _initializePlayer();
   }
 
   Future<void> _initializePlayer() async {
     final result = await _channelService.getChannelUrl(widget.channelId);
-    if (result is String && !result.startsWith('http')) {
+
+    if (result is Map<String, dynamic>) {
+      final url = result['url'];
+      final headers = result['headers'] as Map<String, String>;
+
+      await _player.open(
+        Media(
+          url,
+          httpHeaders: headers,
+        ),
+      );
       setState(() {
         _isLoading = false;
-        _error = result;
       });
-    } else if (result != null) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(result))
-        ..initialize().then((_) {
-          setState(() {
-            _isLoading = false;
-            _controller.play();
-          });
-        });
     } else {
       setState(() {
         _isLoading = false;
-        _error = 'Failed to get channel URL.';
+        _error = result.toString();
       });
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _player.dispose();
     super.dispose();
   }
 
@@ -63,12 +68,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ? const CircularProgressIndicator()
             : _error != null
                 ? Text('Error: $_error')
-                : _controller.value.isInitialized
-                    ? AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: VideoPlayer(_controller),
-                      )
-                    : const Text('Error: Could not play video.'),
+                : Video(controller: _controller),
       ),
     );
   }
